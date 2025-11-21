@@ -15,9 +15,8 @@ services:
       - LOG_LEVEL=INFO
       - MAX_BATCH_SIZE=20
       - MAX_IMAGE_SIZE=5242880
-      - REQUEST_TIMEOUT=60
+      - REQUEST_TIMEOUT=10
     restart: unless-stopped
-    # 日志配置 - 限制日志大小
     logging:
       driver: "json-file"
       options:
@@ -29,9 +28,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - captcha-network
-
-networks:
-  captcha-network:
-    driver: bridge
