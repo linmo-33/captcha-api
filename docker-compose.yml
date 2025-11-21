@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  captcha-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: captcha-api
+    ports:
+      - "7777:7777"
+    environment:
+      - HOST=::
+      - PORT=7777
+      - DEBUG=False
+      - LOG_LEVEL=INFO
+      - MAX_BATCH_SIZE=20
+      - MAX_IMAGE_SIZE=5242880
+      - REQUEST_TIMEOUT=60
+    restart: unless-stopped
+    # 日志配置 - 限制日志大小
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:7777/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - captcha-network
+
+networks:
+  captcha-network:
+    driver: bridge

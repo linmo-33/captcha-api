@@ -5,16 +5,22 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
     
     # 日志配置
-    LOG_FILE = 'app.log'
-    LOG_LEVEL = 'DEBUG'
-    LOG_FORMAT = '%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
+    LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s - %(message)s'
     
     # API配置
-    MAX_BATCH_SIZE = 20
-    DEFAULT_RATE_LIMIT = "30 per minute"
+    MAX_BATCH_SIZE = int(os.environ.get('MAX_BATCH_SIZE', 20))
+    DEFAULT_RATE_LIMIT = os.environ.get('DEFAULT_RATE_LIMIT', "30 per minute")
+    
+    # 图片处理配置
+    MAX_IMAGE_SIZE = int(os.environ.get('MAX_IMAGE_SIZE', 5 * 1024 * 1024))  # 5MB
+    ALLOWED_IMAGE_FORMATS = ['JPEG', 'PNG', 'BMP', 'GIF', 'WEBP']
+    
+    # 请求超时配置
+    REQUEST_TIMEOUT = int(os.environ.get('REQUEST_TIMEOUT', 60))  # 秒
     
     # 服务器配置
-    HOST = '::'
-    PORT = 7777
-    DEBUG = True
+    HOST = os.environ.get('HOST', '::')
+    PORT = int(os.environ.get('PORT', 7777))
+    DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
     THREADED = True

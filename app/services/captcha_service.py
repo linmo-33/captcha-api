@@ -83,25 +83,73 @@ class CaptchaService:
             return None
     
     def calculate(self, image):
-        """计算类验证码"""
+        """计算类验证码 - 使用安全的表达式求值"""
         try:
             image_bytes = get_image_bytes(image)
             expression = self.ocr.classification(image_bytes)
+            
+            # 清理表达式
             expression = re.sub('=.*', '', expression)
-            expression = re.sub('[^0-9+\-*/()]', '', expression)
-            result = eval(expression)
+            expression = re.sub('[^0-9+\-*/().]', '', expression)
+            
+            if not expression:
+                return None
+            
+            # 安全计算：使用 ast.literal_eval 的替代方案
+            result = self._safe_eval(expression)
             return result
         except Exception as e:
             current_app.logger.error(f"计算验证码错误: {e}")
             return None
     
-    def crop_image(self, image_url, y_coordinate):
-        """图片分割"""
+    def _safe_eval(self, expression):
+        """安全的数学表达式求值"""
+        import ast
+        import operator
+        
+        # 支持的操作符
+        operators = {
+            ast.Add: operator.add,
+            ast.Sub: operator.sub,
+            ast.Mult: operator.mul,
+            ast.Div: operator.truediv,
+            ast.USub: operator.neg,
+        }
+        
+        def eval_node(node):
+            if isinstance(node, ast.Num):
+                return node.n
+            elif isinstance(node, ast.BinOp):
+                left = eval_node(node.left)
+                right = eval_node(node.right)
+                return operators[type(node.op)](left, right)
+            elif isinstance(node, ast.UnaryOp):
+                operand = eval_node(node.operand)
+                return operators[type(node.op)](operand)
+            else:
+                raise ValueError(f"不支持的表达式类型: {type(node)}")
+        
         try:
-            import requests
-            image = Image.open(BytesIO(requests.get(image_url).content))
+            tree = ast.parse(expression, mode='eval')
+            result = eval_node(tree.body)
+            return int(result) if isinstance(result, float) and result.is_integer() else result
+        except Exception as e:
+            current_app.logger.error(f"表达式求值错误: {e}")
+            return None
+    
+    def crop_image(self, image_data, y_coordinate):
+        """图片分割 - 支持多种输入格式"""
+        try:
+            # 使用统一的图片获取方法
+            image_bytes = get_image_bytes(image_data)
+            image = Image.open(BytesIO(image_bytes))
+            
+            # 验证坐标有效性
+            if y_coordinate <= 0 or y_coordinate >= image.height:
+                raise ValueError(f"Y坐标无效: {y_coordinate}, 图片高度: {image.height}")
+            
             upper_half = image.crop((0, 0, image.width, y_coordinate))
-            lower_half = image.crop((0, y_coordinate*2, image.width, image.height))
+            lower_half = image.crop((0, y_coordinate, image.width, image.height))
             
             return {
                 'slidingImage': image_to_base64(upper_half),
@@ -112,21 +160,39 @@ class CaptchaService:
             return None
     
     def click_select(self, image):
-        """点选验证码"""
+        """点选验证码 - 返回文字和中心点坐标"""
         try:
             image_bytes = get_image_bytes(image)
             image_array = np.frombuffer(image_bytes, dtype=np.uint8)
             im = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
             bboxes = self.det.detection(image_bytes)
             
+            if not bboxes or len(bboxes) == 0:
+                return []
+            
             results = []
             for bbox in bboxes:
                 x1, y1, x2, y2 = map(int, bbox)
+                
+                # 验证边界框有效性
+                if x2 <= x1 or y2 <= y1:
+                    continue
+                
                 cropped_image = im[y1:y2, x1:x2]
                 _, buffer = cv2.imencode('.png', cropped_image)
-                image_base64 = base64.b64encode(buffer).decode('utf-8')
-                text = self.ocr.classification(image_base64)
-                results.append({text: bbox.tolist()})
+                cropped_bytes = buffer.tobytes()
+                
+                text = self.ocr.classification(cropped_bytes)
+                
+                # 计算中心点坐标（更适合点击操作）
+                center_x = (x1 + x2) // 2
+                center_y = (y1 + y2) // 2
+                
+                results.append({
+                    'text': text,
+                    'bbox': [x1, y1, x2, y2],
+                    'center': [center_x, center_y]
+                })
             
             return results
         except Exception as e:

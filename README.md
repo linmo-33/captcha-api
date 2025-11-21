@@ -12,13 +12,6 @@
 - ✂️ 图片分割
 - 👆 点选验证码
 
-### 系统功能
-- 🎨 现代化Web界面
-- 📊 实时统计分析
-- 🚀 速率限制保护
-- 📖 Swagger API文档
-- 🖼️ 图片预处理增强
-- 💡 丰富的代码示例
 
 ## 项目结构
 
@@ -61,8 +54,7 @@ python run.py
 
 3. 访问服务：
 ```
-前端界面: http://localhost:7777/
-使用示例: http://localhost:7777/examples
+API首页: http://localhost:7777/
 API文档: http://localhost:7777/docs
 健康检查: http://localhost:7777/health
 统计信息: http://localhost:7777/stats
@@ -70,9 +62,43 @@ API文档: http://localhost:7777/docs
 
 ### Docker 运行
 
+**方式一：使用启动脚本（推荐）**
+
+Windows:
 ```bash
+start.bat
+```
+
+Linux/Mac:
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+**方式二：使用 Docker Compose**
+```bash
+docker-compose up -d --build
+```
+
+**方式三：手动 Docker 命令**
+```bash
+# 构建镜像
 docker build -t captcha-api .
-docker run -p 7777:7777 captcha-api
+
+# 运行容器
+docker run -d \
+  --name captcha-api \
+  -p 7777:7777 \
+  -e DEBUG=False \
+  -e LOG_LEVEL=INFO \
+  --restart unless-stopped \
+  captcha-api
+
+# 查看日志
+docker logs -f captcha-api
+
+# 停止服务
+docker stop captcha-api
 ```
 
 ## API 端点
@@ -95,15 +121,7 @@ docker run -p 7777:7777 captcha-api
 
 ## 使用方式
 
-### 方式一：Web界面（推荐）
-
-1. 访问 `http://localhost:7777/`
-2. 选择识别类型（OCR、滑块、检测等）
-3. 上传图片或粘贴Base64/URL
-4. 点击"开始识别"查看结果
-5. 查看实时统计信息
-
-### 方式二：API调用
+### API调用
 
 #### OCR识别
 ```bash
@@ -137,8 +155,6 @@ curl -X POST http://localhost:7777/batch/classification \
   }'
 ```
 
-更多示例请访问：http://localhost:7777/examples
-
 ## 配置说明
 
 在 `app/config.py` 中可以修改：
@@ -156,31 +172,24 @@ curl -X POST http://localhost:7777/batch/classification \
 - Flask-Limiter - 速率限制
 - Flasgger - API文档
 
-## 项目截图
+## 环境变量配置
 
-### Web界面
-- 现代化的渐变背景设计
-- 响应式布局，支持移动端
-- 实时统计面板
-- 多标签功能切换
+复制 `.env.example` 为 `.env` 并根据需要修改：
 
-### 功能特点
-- 📱 响应式设计，支持各种屏幕尺寸
-- 🎨 美观的UI界面
-- ⚡ 快速的识别响应
-- 📊 实时统计展示
-- 💡 丰富的代码示例
-
-## 快速启动
-
-### Windows
-双击运行 `start.bat`
-
-### Linux/Mac
 ```bash
-chmod +x start.sh
-./start.sh
+cp .env.example .env
 ```
+
+可配置项：
+- `HOST` - 服务监听地址（默认: ::）
+- `PORT` - 服务端口（默认: 7777）
+- `DEBUG` - 调试模式（默认: False）
+- `LOG_LEVEL` - 日志级别（默认: INFO，可选: DEBUG/INFO/WARNING/ERROR）
+- `MAX_BATCH_SIZE` - 批量处理最大数量（默认: 20）
+- `MAX_IMAGE_SIZE` - 图片最大大小（默认: 5MB）
+- `REQUEST_TIMEOUT` - 请求超时时间（默认: 10秒）
+
+**注意**: 日志输出到控制台，不保存到文件。使用 `docker logs` 查看容器日志。
 
 ## 常见问题
 
@@ -188,7 +197,7 @@ chmod +x start.sh
 修改 `app/config.py` 中的 `PORT` 配置
 
 ### 2. 识别率低
-- 尝试启用"图片预处理"选项
+- 在请求中设置 `"preprocess": true` 启用图片预处理
 - 确保图片清晰度足够
 - 检查图片格式是否支持
 
@@ -196,6 +205,49 @@ chmod +x start.sh
 - 检查速率限制配置
 - 等待一段时间后重试
 - 考虑部署多个实例
+
+## 更新日志
+
+查看 [CHANGELOG.md](CHANGELOG.md) 了解最新更新。
+
+## Docker 管理命令
+
+```bash
+# 查看容器状态
+docker ps
+
+# 实时查看日志（推荐）
+docker logs -f captcha-api
+
+# 查看最近 100 行日志
+docker logs --tail 100 captcha-api
+
+# 查看带时间戳的日志
+docker logs -f --timestamps captcha-api
+
+# 进入容器
+docker exec -it captcha-api bash
+
+# 重启服务
+docker restart captcha-api
+
+# 停止服务
+docker stop captcha-api
+
+# 删除容器
+docker rm captcha-api
+
+# 删除镜像
+docker rmi captcha-api
+```
+
+## 安全说明
+
+- 所有图片大小限制为 5MB
+- URL 图片下载有 10 秒超时限制
+- 计算类验证码使用安全的 AST 求值，不使用 eval()
+- Docker 容器使用非 root 用户运行
+- 建议在生产环境中设置 `DEBUG=False`
 
 ## 贡献指南
 

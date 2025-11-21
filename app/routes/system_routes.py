@@ -1,14 +1,9 @@
 from datetime import datetime
-from flask import jsonify, render_template
+from flask import jsonify
 from app.routes import api_bp
 from app.utils.stats import get_stats_data
 
 @api_bp.route('/', methods=['GET'])
-def index():
-    """渲染前端页面"""
-    return render_template('index.html')
-
-@api_bp.route('/api', methods=['GET'])
 def api_info():
     """
     API首页
@@ -60,8 +55,3 @@ def get_stats():
         description: API使用统计
     """
     return jsonify(get_stats_data())
-
-@api_bp.route('/examples', methods=['GET'])
-def examples():
-    """使用示例页面"""
-    return render_template('examples.html')
