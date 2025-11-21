@@ -48,11 +48,6 @@ docker pull ghcr.io/linmo-33/captcha-api:latest
 docker run -d -p 7777:7777 --name captcha-api ghcr.io/linmo-33/captcha-api:latest
 ```
 
-**从 Docker Hub 拉取：**
-```bash
-docker pull your-username/captcha-api:latest
-docker run -d -p 7777:7777 --name captcha-api your-username/captcha-api:latest
-```
 
 ### 本地运行
 
