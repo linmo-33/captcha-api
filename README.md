@@ -215,29 +215,6 @@ cp .env.example .env
 - 等待一段时间后重试
 - 考虑部署多个实例
 
-## 发布新版本
-
-创建新的版本标签会自动触发 Docker 镜像构建：
-
-```bash
-# 创建标签
-git tag -a v1.0.0 -m "Release version 1.0.0"
-
-# 推送标签
-git push origin v1.0.0
-```
-
-GitHub Actions 会自动构建并推送镜像到：
-- GitHub Container Registry: `ghcr.io/linmo-33/captcha-api:v1.0.0`
-- Docker Hub: `your-username/captcha-api:v1.0.0`
-
-## CI/CD
-
-标签推送时自动构建 Docker 镜像：
-- ✅ 自动构建并推送到 GitHub Container Registry
-- ✅ 支持多架构（amd64, arm64）
-- ✅ 自动生成版本标签（latest, v1.0.0, v1.0, v1）
-
 ## Docker 管理命令
 
 ```bash
