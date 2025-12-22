@@ -3,7 +3,7 @@ import os
 
 # 服务器配置
 bind = f"[::]:{os.getenv('PORT', 7777)}"
-workers = int(os.getenv('WORKERS', 2))  # 减少到 2 个 worker
+workers = int(os.getenv('WORKERS', 1))  # 默认 1 个 worker，节省内存
 worker_class = 'gevent'
 worker_connections = 1000
 timeout = 120
