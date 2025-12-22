@@ -47,4 +47,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:7777/health', timeout=5)"
 
 # 运行项目
-CMD ["python", "run.py"]
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "run:app"]

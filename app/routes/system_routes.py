@@ -2,6 +2,10 @@ from datetime import datetime
 from flask import jsonify
 from app.routes import api_bp
 from app.utils.stats import get_stats_data
+import logging
+
+# 获取 logger，用于过滤健康检查日志
+log = logging.getLogger('werkzeug')
 
 @api_bp.route('/', methods=['GET'])
 def api_info():
@@ -39,6 +43,8 @@ def health_check():
       200:
         description: 服务健康状态
     """
+    # 不记录健康检查日志，避免刷屏
+    log.setLevel(logging.ERROR)
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
