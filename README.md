@@ -254,13 +254,6 @@ docker rmi captcha-api
 - Docker 容器使用非 root 用户运行
 - 建议在生产环境中设置 `DEBUG=False`
 
-## 部署指南
-
-详细的部署说明请查看 [DEPLOYMENT.md](DEPLOYMENT.md)
-
-## 贡献指南
-
-欢迎提交 Issue 和 Pull Request！
 
 ## 许可证
 

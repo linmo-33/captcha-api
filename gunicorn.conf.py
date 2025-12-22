@@ -3,11 +3,16 @@ import os
 
 # 服务器配置
 bind = f"[::]:{os.getenv('PORT', 7777)}"
-workers = int(os.getenv('WORKERS', 4))
+workers = int(os.getenv('WORKERS', 2))  # 减少到 2 个 worker
 worker_class = 'gevent'
 worker_connections = 1000
 timeout = 120
 keepalive = 5
+
+# 进程管理
+max_requests = 1000  # 每个 worker 处理 1000 个请求后重启，释放内存
+max_requests_jitter = 50  # 随机抖动，避免同时重启
+preload_app = True  # 预加载应用，共享内存
 
 # 日志配置
 accesslog = '-'
@@ -24,6 +29,7 @@ def on_starting(server):
 def when_ready(server):
     """服务就绪时"""
     print(f"✅ CAPTCHA API 服务已就绪 - http://localhost:{os.getenv('PORT', 7777)}")
+    print(f"📊 Workers: {workers} | Connections: {worker_connections}")
 
 def on_exit(server):
     """服务退出时"""
