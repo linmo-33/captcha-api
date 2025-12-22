@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   captcha-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/linmo-33/captcha-api:latest
     container_name: captcha-api
     ports:
       - "7777:7777"

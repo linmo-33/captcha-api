@@ -75,7 +75,7 @@ def preprocess_image(image_bytes, enhance=False, denoise=False, binarize=False):
     Args:
         image_bytes: 图片字节流
         enhance: 是否增强对比度和锐度
-        denoise: 是否去噪
+        denoise: 是否去噪（已禁用，保留参数兼容性）
         binarize: 是否二值化
     
     Returns:
@@ -89,7 +89,7 @@ def preprocess_image(image_bytes, enhance=False, denoise=False, binarize=False):
             image = image.convert('RGB')
         
         if enhance:
-            # 增强对比度（调整为更温和的参数）
+            # 增强对比度
             enhancer = ImageEnhance.Contrast(image)
             image = enhancer.enhance(1.5)
             # 增强锐度
@@ -105,18 +105,15 @@ def preprocess_image(image_bytes, enhance=False, denoise=False, binarize=False):
         elif img_array.shape[2] == 4:
             img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2BGR)
         
-        if denoise:
-            # 去噪 - 使用更安全的参数
-            try:
-                img_array = cv2.fastNlMeansDenoisingColored(img_array, None, 3, 3, 7, 21)
-            except Exception:
-                # 如果去噪失败，跳过此步骤
-                pass
+        # 注意：去噪功能已禁用，因为 cv2.fastNlMeansDenoisingColored 
+        # 在某些情况下会导致递归错误
+        # if denoise:
+        #     img_array = cv2.fastNlMeansDenoisingColored(img_array, None, 3, 3, 7, 21)
         
         if binarize:
             # 转灰度
             gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
-            # 自适应二值化（效果更好）
+            # 自适应二值化
             img_array = cv2.adaptiveThreshold(
                 gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
                 cv2.THRESH_BINARY, 11, 2
