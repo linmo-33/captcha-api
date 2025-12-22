@@ -3,6 +3,7 @@ from app.routes import api_bp
 from app import limiter
 from app.utils.stats import track_stats
 from app.services.captcha_service import CaptchaService
+from app.middleware.auth import require_api_key
 
 # 初始化服务
 captcha_service = CaptchaService()
@@ -10,10 +11,15 @@ captcha_service = CaptchaService()
 @api_bp.route('/capcode', methods=['POST'])
 @limiter.limit("30 per minute")
 @track_stats('capcode')
+@require_api_key
 def capcode():
     """
     滑块验证码识别
     ---
+    tags:
+      - 验证码识别
+    security:
+      - ApiKeyAuth: []
     parameters:
       - name: body
         in: body
@@ -73,6 +79,7 @@ def capcode():
 @api_bp.route('/slideComparison', methods=['POST'])
 @limiter.limit("30 per minute")
 @track_stats('slideComparison')
+@require_api_key
 def slide_comparison():
     """滑块对比识别"""
     try:
@@ -90,10 +97,15 @@ def slide_comparison():
 @api_bp.route('/classification', methods=['POST'])
 @limiter.limit("50 per minute")
 @track_stats('classification')
+@require_api_key
 def classification():
     """
     OCR文字识别
     ---
+    tags:
+      - 验证码识别
+    security:
+      - ApiKeyAuth: []
     parameters:
       - name: body
         in: body
@@ -135,6 +147,7 @@ def classification():
 @api_bp.route('/batch/classification', methods=['POST'])
 @limiter.limit("10 per minute")
 @track_stats('batch_classification')
+@require_api_key
 def batch_classification():
     """
     批量OCR文字识别
@@ -194,6 +207,7 @@ def batch_classification():
 @api_bp.route('/detection', methods=['POST'])
 @limiter.limit("30 per minute")
 @track_stats('detection')
+@require_api_key
 def detection():
     """目标检测"""
     try:
@@ -208,6 +222,7 @@ def detection():
 @api_bp.route('/calculate', methods=['POST'])
 @limiter.limit("30 per minute")
 @track_stats('calculate')
+@require_api_key
 def calculate():
     """计算类验证码识别"""
     try:
@@ -222,6 +237,7 @@ def calculate():
 @api_bp.route('/crop', methods=['POST'])
 @limiter.limit("30 per minute")
 @track_stats('crop')
+@require_api_key
 def crop():
     """
     图片分割
@@ -267,6 +283,7 @@ def crop():
 @api_bp.route('/select', methods=['POST'])
 @limiter.limit("30 per minute")
 @track_stats('select')
+@require_api_key
 def select():
     """点选验证码识别"""
     try:

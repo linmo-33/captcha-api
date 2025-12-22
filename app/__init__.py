@@ -32,7 +32,33 @@ def create_app(config_class=Config):
         "swagger_ui": True,
         "specs_route": "/docs"
     }
-    Swagger(app, config=swagger_config)
+    
+    # Swagger 模板配置
+    swagger_template = {
+        "swagger": "2.0",
+        "info": {
+            "title": "CAPTCHA Recognition API",
+            "description": "基于 ddddocr 的验证码识别服务",
+            "version": "1.0.3",
+            "contact": {
+                "name": "API Support",
+                "url": "https://github.com/linmo-33/captcha-api"
+            }
+        },
+        "securityDefinitions": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "name": "X-API-Key",
+                "in": "header",
+                "description": "API Key 认证（可选）。如果服务器配置了 API_KEYS，则需要提供有效的 API Key"
+            }
+        },
+        "security": [
+            {"ApiKeyAuth": []}
+        ]
+    }
+    
+    Swagger(app, config=swagger_config, template=swagger_template)
     
     # 设置日志
     setup_logger(app)

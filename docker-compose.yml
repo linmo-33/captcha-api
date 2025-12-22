@@ -8,14 +8,8 @@ services:
     container_name: captcha-api
     ports:
       - "7777:7777"
-    environment:
-      - HOST=::
-      - PORT=7777
-      - DEBUG=False
-      - LOG_LEVEL=INFO
-      - MAX_BATCH_SIZE=20
-      - MAX_IMAGE_SIZE=5242880
-      - REQUEST_TIMEOUT=10
+    env_file:
+      - .env
     restart: unless-stopped
     logging:
       driver: "json-file"

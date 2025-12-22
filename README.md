@@ -130,11 +130,47 @@ docker stop captcha-api
 
 ## 使用方式
 
-### API调用
+### API 认证
+
+**不启用认证（默认）：**
+```bash
+# 不设置 API_KEYS，直接调用
+curl -X POST http://localhost:7777/classification \
+  -H "Content-Type: application/json" \
+  -d '{"image": "base64_string"}'
+```
+
+**启用认证：**
+```bash
+# 设置环境变量
+export API_KEYS="key1,key2,key3"
+
+# 或在 docker-compose.yml 中设置
+environment:
+  - API_KEYS=key1,key2,key3
+
+# 调用时需要提供 API Key
+curl -X POST http://localhost:7777/classification \
+  -H "X-API-Key: key1" \
+  -H "Content-Type: application/json" \
+  -d '{"image": "base64_string"}'
+```
+
+### API 调用
 
 #### OCR识别
 ```bash
+# 不启用认证
 curl -X POST http://localhost:7777/classification \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image": "base64_string_or_url",
+    "preprocess": true
+  }'
+
+# 启用认证
+curl -X POST http://localhost:7777/classification \
+  -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
     "image": "base64_string_or_url",
@@ -144,6 +180,7 @@ curl -X POST http://localhost:7777/classification \
 
 #### 滑块识别
 ```bash
+# 启用认证时添加 -H "X-API-Key: your-api-key"
 curl -X POST http://localhost:7777/capcode \
   -H "Content-Type: application/json" \
   -d '{
@@ -156,6 +193,7 @@ curl -X POST http://localhost:7777/capcode \
 
 #### 批量识别
 ```bash
+# 启用认证时添加 -H "X-API-Key: your-api-key"
 curl -X POST http://localhost:7777/batch/classification \
   -H "Content-Type: application/json" \
   -d '{

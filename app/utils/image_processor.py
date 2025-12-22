@@ -33,13 +33,18 @@ def get_image_bytes(image_data, max_size=5*1024*1024, timeout=10):
                     image_data, 
                     timeout=timeout,
                     headers={'User-Agent': 'Mozilla/5.0'},
-                    verify=False
+                    verify=True,  # 启用 SSL 验证
+                    allow_redirects=True,
+                    stream=True  # 流式下载，避免大文件问题
                 )
                 response.raise_for_status()
                 
-                content = response.content
-                if len(content) > max_size:
-                    raise ValueError(f"图片大小超过限制: {len(content)} > {max_size}")
+                # 读取内容
+                content = b''
+                for chunk in response.iter_content(chunk_size=8192):
+                    content += chunk
+                    if len(content) > max_size:
+                        raise ValueError(f"图片大小超过限制: {len(content)} > {max_size}")
                 
                 return content
             except requests.RequestException as e:
@@ -101,8 +106,12 @@ def preprocess_image(image_bytes, enhance=False, denoise=False, binarize=False):
             img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2BGR)
         
         if denoise:
-            # 去噪（调整参数以提高速度）
-            img_array = cv2.fastNlMeansDenoisingColored(img_array, None, 5, 5, 7, 15)
+            # 去噪 - 使用更安全的参数
+            try:
+                img_array = cv2.fastNlMeansDenoisingColored(img_array, None, 3, 3, 7, 21)
+            except Exception:
+                # 如果去噪失败，跳过此步骤
+                pass
         
         if binarize:
             # 转灰度

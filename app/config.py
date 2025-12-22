@@ -2,11 +2,13 @@ import os
 
 class Config:
     """应用配置"""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
     
     # 日志配置
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
     LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s - %(message)s'
+    
+    # API 认证（可选）
+    API_KEYS = os.environ.get('API_KEYS', '')  # 逗号分隔的 API Keys
     
     # API配置
     MAX_BATCH_SIZE = int(os.environ.get('MAX_BATCH_SIZE', 20))
