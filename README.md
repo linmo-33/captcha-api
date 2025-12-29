@@ -118,16 +118,6 @@ docker stop captcha-api
 - `GET /stats` - 统计信息
 - `GET /docs` - API文档
 
-### 识别端点
-- `POST /classification` - OCR文字识别
-- `POST /batch/classification` - 批量OCR识别
-- `POST /capcode` - 滑块验证码识别
-- `POST /slideComparison` - 滑块对比
-- `POST /detection` - 目标检测
-- `POST /calculate` - 计算类验证码
-- `POST /crop` - 图片分割
-- `POST /select` - 点选验证码
-
 ## 使用方式
 
 ### API 认证
@@ -175,30 +165,6 @@ curl -X POST http://localhost:7777/classification \
   -d '{
     "image": "base64_string_or_url",
     "preprocess": true
-  }'
-```
-
-#### 滑块识别
-```bash
-# 启用认证时添加 -H "X-API-Key: your-api-key"
-curl -X POST http://localhost:7777/capcode \
-  -H "Content-Type: application/json" \
-  -d '{
-    "slidingImage": "base64_or_url",
-    "backImage": "base64_or_url",
-    "simpleTarget": true,
-    "preprocess": false
-  }'
-```
-
-#### 批量识别
-```bash
-# 启用认证时添加 -H "X-API-Key: your-api-key"
-curl -X POST http://localhost:7777/batch/classification \
-  -H "Content-Type: application/json" \
-  -d '{
-    "images": ["image1", "image2"],
-    "preprocess": false
   }'
 ```
 
